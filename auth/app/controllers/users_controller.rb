@@ -32,10 +32,9 @@ class UsersController < ApplicationController
         event = {
           event_name: 'UserUpdated',
           data: {
-            public_id: @user.public_id,
+            public_id: @user.id,
             email: @user.email,
-            full_name: @user.full_name,
-            position: @user.position
+            full_name: @user.full_name
           }
         }
         Producer.call(event.to_json, topic: 'users-stream')
