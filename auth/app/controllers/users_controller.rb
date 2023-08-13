@@ -14,7 +14,7 @@ class UsersController < ApplicationController
   # GET /users/current.json
   def current
     respond_to do |format|
-      format.json { render json: current_user }
+      format.json  { render :json => current_user }
     end
   end
 
@@ -37,14 +37,14 @@ class UsersController < ApplicationController
             full_name: @user.full_name
           }
         }
-        Producer.call(event.to_json, topic: 'users-stream')
+        WaterDrop::SyncProducer.call(event.to_json, topic: 'users-stream')
 
         if new_role
           event = {
             event_name: 'UserRoleChanged',
             data: { public_id:, role: }
           }
-          Producer.call(event.to_json, topic: 'users')
+          WaterDrop::SyncProducer.call(event.to_json, topic: 'users')
         end
 
         # --------------------------------------------------------------------
@@ -70,7 +70,7 @@ class UsersController < ApplicationController
       event_name: 'UserDeleted',
       data: { public_id: @user.public_id }
     }
-    Producer.call(event.to_json, topic: 'users-stream')
+    WaterDrop::SyncProducer.call(event.to_json, topic: 'users-stream')
     # --------------------------------------------------------------------
 
     respond_to do |format|
