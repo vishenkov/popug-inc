@@ -9,6 +9,7 @@ class DeviseCreateUsers < ActiveRecord::Migration[7.0]
 
       ## Account information
       t.string   :full_name
+      t.string   :public_id
 
       ## Recoverable
       t.string   :reset_password_token

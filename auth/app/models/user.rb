@@ -16,22 +16,25 @@ class User < ApplicationRecord
            foreign_key: :resource_owner_id,
            dependent: :delete_all # or :destroy if you need callbacks
 
+  before_create do
+    self.public_id = SecureRandom.uuid
+  end
+
   after_create do
     # ----------------------------- produce event -----------------------
     event = {
       event_name: 'UserCreated',
       data: {
-        # TODO: generate some random public_id
-        public_id: id,
+        public_id:,
         email:,
-        full_name:
+        full_name:,
+        role:
       }
     }
 
-    # WaterDrop::SyncProducer.call(event.to_json, topic: 'users-stream')
+    Karafka.producer.produce_sync(payload: event.to_json, topic: 'users-stream')
     # --------------------------------------------------------------------
   end
-
 
   # todo: fixme
   def admin?

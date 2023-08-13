@@ -37,14 +37,14 @@ class UsersController < ApplicationController
             full_name: @user.full_name
           }
         }
-        WaterDrop::SyncProducer.call(event.to_json, topic: 'users-stream')
+        Karafka.producer.produce_sync(payload: event.to_json, topic: 'users-stream')
 
         if new_role
           event = {
             event_name: 'UserRoleChanged',
             data: { public_id:, role: }
           }
-          WaterDrop::SyncProducer.call(event.to_json, topic: 'users')
+          Karafka.producer.produce_sync(payload: event.to_json, topic: 'users')
         end
 
         # --------------------------------------------------------------------
@@ -70,7 +70,7 @@ class UsersController < ApplicationController
       event_name: 'UserDeleted',
       data: { public_id: @user.public_id }
     }
-    WaterDrop::SyncProducer.call(event.to_json, topic: 'users-stream')
+    Karafka.producer.produce_sync(payload: event.to_json, topic: 'users-stream')
     # --------------------------------------------------------------------
 
     respond_to do |format|
