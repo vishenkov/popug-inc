@@ -1,4 +1,9 @@
+<%= notice %>
+
 <h1>Tasks</h1>
+
+<%= link_to "Create task", new_task_path %>
+<%= button_to "Shuffle tasks", shuffle_tasks_path, method: :post %>
 
 <table>
   <thead>
@@ -6,6 +11,24 @@
       <th>id</th>
       <th>public_id</th>
       <th>title</th>
+      <th>description</th>
+      <th>user_id</th>
+      <th>completed?</th>
     </tr>
   </thead>
+
+  <tbody>
+    <% @tasks.each do |task| %>
+      <tr>
+        <td><%= task.id %></td>
+        <td><%= task.public_id %></td>
+        <td><%= task.title %></td>
+        <td><%= task.description %></td>
+        <td><%= task.user_id %></td>
+        <td><%= task.completed %></td>
+        <td><%= link_to 'Edit', edit_task_path(task) %></td>
+        <td><%= button_to 'Destroy', task, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
 </table>

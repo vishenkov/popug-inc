@@ -1,7 +1,10 @@
 # frozen_string_literal: true
 
 class User < ApplicationRecord
+  has_many :tasks, dependent: :destroy
   has_many :auth_identities
+
+  enum role: %i[employee manager admin]
 
   class << self
     def find_by_auth_identity(provider, identity_params)

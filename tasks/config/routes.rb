@@ -7,5 +7,6 @@ Rails.application.routes.draw do
   get '/login', to: 'sessions#new'
   get '/logout', to: 'sessions#destroy'
 
-  get 'tasks', to: 'tasks#index', as: 'tasks'
+  resources :tasks
+  post 'tasks/shuffle', to: 'tasks#shuffle', as: 'shuffle_tasks'
 end
