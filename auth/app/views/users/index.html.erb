@@ -8,17 +8,21 @@
       <th>email</th>
       <th>full name</th>
       <th>role</th>
+      <th></th>
+      <th></th>
     </tr>
   </thead>
 
   <tbody>
-    <% @users.each do |account| %>
+    <% @users.each do |user| %>
       <tr>
-        <td><%= account.id %></td>
-        <td><%= account.id %></td>
-        <td><%= account.email %></td>
-        <td><%= account.full_name %></td>
-        <td><%= account.role %></td>
+        <td><%= user.id %></td>
+        <td><%= user.public_id %></td>
+        <td><%= user.email %></td>
+        <td><%= user.full_name %></td>
+        <td><%= user.role %></td>
+        <td><%= link_to 'Edit', edit_user_path(user) %></td>
+        <td><%= button_to 'Destroy', user, method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>
     <% end %>
   </tbody>

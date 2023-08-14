@@ -36,8 +36,7 @@ class User < ApplicationRecord
     # --------------------------------------------------------------------
   end
 
-  # todo: fixme
   def admin?
-    true
+    self.role == 2
   end
 end

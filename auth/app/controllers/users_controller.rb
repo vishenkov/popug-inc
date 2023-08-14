@@ -37,14 +37,16 @@ class UsersController < ApplicationController
             full_name: @user.full_name
           }
         }
+
         Karafka.producer.produce_sync(payload: event.to_json, topic: 'users-stream')
 
         if new_role
           event = {
             event_name: 'UserRoleChanged',
-            data: { public_id:, role: }
+            data: { public_id: @user.public_id, role: @user.role }
           }
-          Karafka.producer.produce_sync(payload: event.to_json, topic: 'users')
+
+          Karafka.producer.produce_sync(payload: event.to_json, topic: 'users-stream')
         end
 
         # --------------------------------------------------------------------
@@ -70,6 +72,7 @@ class UsersController < ApplicationController
       event_name: 'UserDeleted',
       data: { public_id: @user.public_id }
     }
+
     Karafka.producer.produce_sync(payload: event.to_json, topic: 'users-stream')
     # --------------------------------------------------------------------
 
