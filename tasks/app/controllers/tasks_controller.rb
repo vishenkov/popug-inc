@@ -25,16 +25,29 @@ class TasksController < ApplicationController
     @task = Task.new(task_params)
     @task.user = User.employee.sample
 
+    # ----------------------------- produce event -----------------------
     if @task.save
       event = {
+        event_id: SecureRandom.uuid,
+        event_version: 1,
+        event_time: Time.now.to_s,
+        producer: 'task_service',
+        event_name: 'TaskCreated',
         event_name: 'TaskCreated',
         data: {
+          public_id: @task.public_id,
+          title: @task.title,
+          completed: @task.completed,
           employee_id: @task.user.public_id,
-          cost: rand(-20..-10)
+          assign_cost: rand(-20..-10),
+          reward: rand(20..40)
         }
       }
 
-      Karafka.producer.produce_sync(topic: 'tasks-stream', payload: event.to_json)
+      result = SchemaRegistry.validate_event(event, 'tasks.created', version: 1)
+
+      Karafka.producer.produce_sync(payload: event.to_json, topic: 'tasks-stream') if result.success?
+      # --------------------------------------------------------------------
 
       redirect_to tasks_url, notice: 'Task was successfully created.'
     else
@@ -47,17 +60,40 @@ class TasksController < ApplicationController
     if @task.update(task_params)
       completed = task_params[:completed] == '1'
 
-      if completed
-        event = {
-          event_name: 'TaskCompleted',
-          data: {
-            employee_id: @task.user.public_id,
-            cost: rand(20..40)
-          }
-        }
+      event = if completed
+                # ----------------------------- produce event -----------------------
+                {
+                  event_id: SecureRandom.uuid,
+                  event_version: 1,
+                  event_time: Time.now.to_s,
+                  producer: 'task_service',
+                  event_name: 'TaskCompleted',
+                  data: {
+                    public_id: @task.public_id,
+                    employee_id: @task.user.public_id,
+                    completed: @task.completed
+                  }
+                }
 
-        Karafka.producer.produce_sync(topic: 'tasks-stream', payload: event.to_json)
-      end
+              # --------------------------------------------------------------------
+              else
+                # ----------------------------- produce event -----------------------
+                {
+                  event_id: SecureRandom.uuid,
+                  event_version: 1,
+                  event_time: Time.now.to_s,
+                  producer: 'task_service',
+                  event_name: 'TaskUpdated',
+                  data: {
+                    public_id: @task.public_id,
+                    title: @task.title,
+                    completed: @task.completed
+                  }
+                }
+
+                # --------------------------------------------------------------------
+              end
+      Karafka.producer.produce_sync(topic: 'tasks-stream', payload: event.to_json)
 
       render :edit, notice: 'Task was successfully updated.', status: :see_other
     else
@@ -68,6 +104,22 @@ class TasksController < ApplicationController
   # DELETE /tasks/1
   def destroy
     @task.destroy
+
+    # ----------------------------- produce event -----------------------
+    event = {
+      event_id: SecureRandom.uuid,
+      event_version: 1,
+      event_time: Time.now.to_s,
+      producer: 'task_service',
+      event_name: 'TaskDeleted',
+      data: {
+        public_id: @task.public_id
+      }
+    }
+
+    Karafka.producer.produce_sync(topic: 'tasks-stream', payload: event.to_json)
+    # --------------------------------------------------------------------
+
     redirect_to tasks_url, notice: 'Task was successfully destroyed.', status: :see_other
   end
 
@@ -77,15 +129,22 @@ class TasksController < ApplicationController
     Task.in_progress.each do |task|
       next unless task.update(user: User.employee.sample)
 
+      # ----------------------------- produce event -----------------------
       event = {
+        event_id: SecureRandom.uuid,
+        event_version: 1,
+        event_time: Time.now.to_s,
+        producer: 'task_service',
         event_name: 'TaskAssigned',
         data: {
+          public_id: task.public_id,
           employee_id: task.user.public_id,
           cost: rand(-20..-10)
         }
       }
 
       Karafka.producer.produce_sync(topic: 'tasks-stream', payload: event.to_json)
+      # --------------------------------------------------------------------
     end
 
     redirect_to tasks_url, notice: 'Tasks were successfully shuffled.', status: :see_other

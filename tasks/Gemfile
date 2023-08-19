@@ -42,3 +42,5 @@ gem 'omniauth-oauth2', '~> 1.8'
 gem 'byebug', '~> 11.1', groups: %i[development test]
 
 gem 'karafka', '~> 2.1'
+
+gem 'schema_registry', git: 'https://github.com/davydovanton/event_schema_registry.git', ref: 'fc87185'
