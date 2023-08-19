@@ -1,8 +1,10 @@
-Rails.application.routes.draw do
-  devise_for :users
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
+# frozen_string_literal: true
 
-  # Defines the root path route ("/")
-  root "home#index"
-  get 'home/index'
+Rails.application.routes.draw do
+  use_doorkeeper
+  devise_for :users
+
+  root 'users#index'
+  resources :users, only: [:edit, :update, :destroy]
+  get '/users/current', to: 'users#current'
 end
