@@ -40,3 +40,5 @@ gem 'omniauth-rails_csrf_protection', '~> 1.0'
 gem 'omniauth-oauth2', '~> 1.8'
 
 gem 'byebug', '~> 11.1', groups: %i[development test]
+
+gem 'karafka', '~> 2.1'
