@@ -36,7 +36,7 @@ class KarafkaApp < Karafka::App
       consumer UsersConsumer
     end
 
-    topic :'users' do
+    topic :users do
       consumer UsersConsumer
     end
   end

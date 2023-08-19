@@ -14,7 +14,7 @@ class UsersController < ApplicationController
   # GET /users/current.json
   def current
     respond_to do |format|
-      format.json  { render :json => current_user }
+      format.json { render json: current_user }
     end
   end
 

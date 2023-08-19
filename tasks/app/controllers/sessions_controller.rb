@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class SessionsController < ApplicationController
   def new
     render :new
@@ -33,7 +35,7 @@ class SessionsController < ApplicationController
       public_id: payload['info']['public_id'],
       full_name: payload['info']['full_name'],
       email: payload['info']['email'],
-      role: payload['info']['role'],
+      role: payload['info']['role']
     }
   end
 

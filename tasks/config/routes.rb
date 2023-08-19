@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 Rails.application.routes.draw do
-  root "sessions#new"
+  root 'sessions#new'
 
   get '/auth/:provider/callback', to: 'sessions#create'
   get '/login', to: 'sessions#new'
