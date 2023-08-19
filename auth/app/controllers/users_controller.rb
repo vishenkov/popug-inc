@@ -30,6 +30,10 @@ class UsersController < ApplicationController
       if @user.update(user_params)
         # ----------------------------- produce event -----------------------
         event = {
+          event_id: SecureRandom.uuid,
+          event_version: 1,
+          event_time: Time.now.to_s,
+          producer: 'auth_service',
           event_name: 'UserUpdated',
           data: {
             public_id: @user.id,
@@ -38,15 +42,23 @@ class UsersController < ApplicationController
           }
         }
 
-        Karafka.producer.produce_sync(payload: event.to_json, topic: 'users-stream')
+        result = SchemaRegistry.validate_event(event, 'users.updated', version: 1)
+
+        Karafka.producer.produce_sync(payload: event.to_json, topic: 'users-stream') if result.success?
 
         if new_role
           event = {
+            event_id: SecureRandom.uuid,
+            event_version: 1,
+            event_time: Time.now.to_s,
+            producer: 'auth_service',
             event_name: 'UserRoleChanged',
             data: { public_id: @user.public_id, role: @user.role }
           }
 
-          Karafka.producer.produce_sync(payload: event.to_json, topic: 'users-stream')
+          result = SchemaRegistry.validate_event(event, 'users.role_changed', version: 1)
+
+          Karafka.producer.produce_sync(payload: event.to_json, topic: 'users') if result.success?
         end
 
         # --------------------------------------------------------------------
@@ -69,11 +81,17 @@ class UsersController < ApplicationController
 
     # ----------------------------- produce event -----------------------
     event = {
+      event_id: SecureRandom.uuid,
+      event_version: 1,
+      event_time: Time.now.to_s,
+      producer: 'auth_service',
       event_name: 'UserDeleted',
       data: { public_id: @user.public_id }
     }
 
-    Karafka.producer.produce_sync(payload: event.to_json, topic: 'users-stream')
+    result = SchemaRegistry.validate_event(event, 'users.deleted', version: 1)
+
+    Karafka.producer.produce_sync(payload: event.to_json, topic: 'users-stream') if result.success?
     # --------------------------------------------------------------------
 
     respond_to do |format|
