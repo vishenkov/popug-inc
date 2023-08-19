@@ -14,7 +14,7 @@
         "title": {
           "type": "string"
         },
-        "user_id": {
+        "employee_id": {
           "type": "string"
         },
         "completed": {
@@ -30,7 +30,7 @@
       "required": [
         "public_id",
         "title",
-        "user_id",
+        "employee_id",
         "assign_cost",
         "reward"
       ]

@@ -33,13 +33,12 @@ class TasksController < ApplicationController
         event_time: Time.now.to_s,
         producer: 'task_service',
         event_name: 'TaskCreated',
-        event_name: 'TaskCreated',
         data: {
           public_id: @task.public_id,
           title: @task.title,
           completed: @task.completed,
           employee_id: @task.user.public_id,
-          assign_cost: rand(-20..-10),
+          assign_cost: rand(10..20),
           reward: rand(20..40)
         }
       }
@@ -60,8 +59,8 @@ class TasksController < ApplicationController
     if @task.update(task_params)
       completed = task_params[:completed] == '1'
 
+      # ----------------------------- produce event -----------------------
       event = if completed
-                # ----------------------------- produce event -----------------------
                 {
                   event_id: SecureRandom.uuid,
                   event_version: 1,
@@ -74,10 +73,7 @@ class TasksController < ApplicationController
                     completed: @task.completed
                   }
                 }
-
-              # --------------------------------------------------------------------
               else
-                # ----------------------------- produce event -----------------------
                 {
                   event_id: SecureRandom.uuid,
                   event_version: 1,
@@ -86,14 +82,13 @@ class TasksController < ApplicationController
                   event_name: 'TaskUpdated',
                   data: {
                     public_id: @task.public_id,
-                    title: @task.title,
-                    completed: @task.completed
+                    title: @task.title
                   }
                 }
 
-                # --------------------------------------------------------------------
               end
       Karafka.producer.produce_sync(topic: 'tasks-stream', payload: event.to_json)
+      # --------------------------------------------------------------------
 
       render :edit, notice: 'Task was successfully updated.', status: :see_other
     else
@@ -138,8 +133,7 @@ class TasksController < ApplicationController
         event_name: 'TaskAssigned',
         data: {
           public_id: task.public_id,
-          employee_id: task.user.public_id,
-          cost: rand(-20..-10)
+          employee_id: task.user.public_id
         }
       }
 
