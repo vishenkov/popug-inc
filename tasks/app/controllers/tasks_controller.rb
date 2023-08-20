@@ -29,13 +29,14 @@ class TasksController < ApplicationController
     if @task.save
       event = {
         event_id: SecureRandom.uuid,
-        event_version: 1,
+        event_version: 2,
         event_time: Time.now.to_s,
         producer: 'task_service',
         event_name: 'TaskCreated',
         data: {
           public_id: @task.public_id,
           title: @task.title,
+          jira_id: @task.jira_id,
           completed: @task.completed,
           employee_id: @task.user.public_id,
           assign_cost: rand(10..20),
@@ -43,7 +44,9 @@ class TasksController < ApplicationController
         }
       }
 
-      result = SchemaRegistry.validate_event(event, 'tasks.created', version: 1)
+      result = SchemaRegistry.validate_event(event, 'tasks.created', version: 2)
+
+      raise result.failure.to_s if result.failure?
 
       Karafka.producer.produce_sync(payload: event.to_json, topic: 'tasks-stream') if result.success?
       # --------------------------------------------------------------------
