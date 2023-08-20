@@ -6,6 +6,48 @@ class User < ApplicationRecord
 
   enum role: %i[employee manager admin]
 
+  after_create do
+    # ----------------------------- produce event -----------------------
+    event = {
+      event_id: SecureRandom.uuid,
+      event_version: 1,
+      event_time: Time.now.to_s,
+      producer: 'accounting_service',
+      event_name: 'BalanceCreated',
+      data: {
+        employee_id: public_id,
+        balance: 0,
+        created_at:
+      }
+    }
+
+    result = SchemaRegistry.validate_event(event, 'balances.created', version: 1)
+
+    Karafka.producer.produce_sync(payload: event.to_json, topic: 'balance-logs-stream') if result.success?
+    # --------------------------------------------------------------------
+  end
+
+  after_update do
+    # ----------------------------- produce event -----------------------
+    event = {
+      event_id: SecureRandom.uuid,
+      event_version: 1,
+      event_time: Time.now.to_s,
+      producer: 'accounting_service',
+      event_name: 'BalanceUpdated',
+      data: {
+        employee_id: public_id,
+        balance:,
+        created_at: updated_at.to_s
+      }
+    }
+
+    result = SchemaRegistry.validate_event(event, 'balances.updated', version: 1)
+
+    Karafka.producer.produce_sync(payload: event.to_json, topic: 'balance-logs-stream') if result.success?
+    # --------------------------------------------------------------------
+  end
+
   class << self
     def find_by_auth_identity(_provider, identity_params)
       User

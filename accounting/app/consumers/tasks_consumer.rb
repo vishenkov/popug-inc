@@ -48,7 +48,7 @@ class TasksConsumer < ApplicationConsumer
         task = Task.find_by(public_id: data['public_id'])
         next if task.blank?
 
-        user.update!(user.balance + task.reward)
+        user.update!(balance: user.balance + task.reward)
 
         AuditLog.create!(
           user:,

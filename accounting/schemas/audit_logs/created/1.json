@@ -1,0 +1,58 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+
+  "title": "Audit_logs.Created.v1",
+  "description": "json schema for create audit log events (version 1)",
+
+  "definitions": {
+    "event_data": {
+      "type": "object",
+      "properties": {
+        "public_id": {
+          "type": "string"
+        },
+        "employee_id": {
+          "type": "string"
+        },
+        "task_id": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "cost": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "public_id",
+        "employee_id",
+        "task_id",
+        "reason",
+        "cost"
+      ]
+    }
+  },
+
+  "type": "object",
+
+  "properties": {
+    "event_id":      { "type": "string" },
+    "event_version": { "enum": [1] },
+    "event_name":    { "enum": ["AuditLogCreated"] },
+    "event_time":    { "type": "string" },
+    "producer":      { "type": "string" },
+
+    "data": { "$ref": "#/definitions/event_data" }
+  },
+
+  "required": [
+    "event_id",
+    "event_version",
+    "event_name",
+    "event_time",
+    "producer",
+    "data"
+  ]
+}
+
