@@ -23,6 +23,10 @@ class User < ApplicationRecord
   after_create do
     # ----------------------------- produce event -----------------------
     event = {
+      event_id: SecureRandom.uuid,
+      event_version: 1,
+      event_time: Time.now.to_s,
+      producer: 'auth_service',
       event_name: 'UserCreated',
       data: {
         public_id:,
@@ -32,7 +36,9 @@ class User < ApplicationRecord
       }
     }
 
-    Karafka.producer.produce_sync(payload: event.to_json, topic: 'users-stream')
+    result = SchemaRegistry.validate_event(event, 'users.created', version: 1)
+
+    Karafka.producer.produce_sync(payload: event.to_json, topic: 'users-stream') if result.success?
     # --------------------------------------------------------------------
   end
 

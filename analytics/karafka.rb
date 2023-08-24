@@ -36,5 +36,13 @@ class KarafkaApp < Karafka::App
     topic :'users-stream' do
       consumer UsersConsumer
     end
+
+    topic :'audit-logs-stream' do
+      consumer AuditLogsConsumer
+    end
+
+    topic :'balance-logs-stream' do
+      consumer BalanceLogsConsumer
+    end
   end
 end

@@ -12,7 +12,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 20_230_814_212_617) do
+ActiveRecord::Schema[7.0].define(version: 20_230_820_004_827) do
   create_table 'auth_identities', force: :cascade do |t|
     t.integer 'user_id', null: false
     t.string 'provider', null: false
@@ -32,6 +32,7 @@ ActiveRecord::Schema[7.0].define(version: 20_230_814_212_617) do
     t.integer 'user_id', null: false
     t.datetime 'created_at', null: false
     t.datetime 'updated_at', null: false
+    t.string 'jira_id'
     t.index ['user_id'], name: 'index_tasks_on_user_id'
   end
 
